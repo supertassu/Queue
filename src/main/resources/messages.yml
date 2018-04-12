@@ -1,0 +1,23 @@
+# Any message can be a string or a string list.
+# Leave it an empty list (KEY: []) to disable that message.
+
+# general placeholders that mostly work:
+## QUEUE_NAME  » queue's display name specified on queues.yml
+# placeholders that work on SimpleQueues and PrioritizedQueues
+## SERVER_NAME » server's internal id specified in bungeecords config.yml
+
+
+SENDING: "&b&l* &r&9Connecting you to &b%QUEUE_NAME%&9..."
+SENT: "&b&l* &r&9You were connected to &b%SERVER_NAME% (%QUEUE_NAME%)&9."
+SENDING_ERROR:
+- ""
+- "&b&l* &r&9An error happened whilst connecting to &b%SERVER_NAME%&9."
+- "&b&l** &r&9%ERROR_MESSAGE%"
+- ""
+
+
+QUEUE_RESET:
+- ""
+- "&b&l* &r&9The queue you were in is restarting."
+- "&b&l* &r&9Please rejoin the queue."
+- ""

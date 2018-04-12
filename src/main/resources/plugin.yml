@@ -1,0 +1,3 @@
+name: Queue
+version: ${project.version}
+main: me.tassu.queue.QueuePlugin
