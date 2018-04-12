@@ -80,6 +80,7 @@ public class QueueManager {
                 queue.sendDelay(config.getInt("sendDelay"));
             }
 
+            return queue.build();
         } else {
             plugin.getLogger().info("unknown queue type " + config.getString("type"));
         }

@@ -15,7 +15,6 @@ SENDING_ERROR:
 - "&b&l** &r&9%ERROR_MESSAGE%"
 - ""
 
-
 QUEUE_RESET:
 - ""
 - "&b&l* &r&9The queue you were in is restarting."

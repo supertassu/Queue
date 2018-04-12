@@ -161,6 +161,7 @@ public class SimpleQueue implements IQueue {
         return pauser;
     }
 
+    @SuppressWarnings("UnusedReturnValue") // tassu
     public static final class Builder {
         private String id;
         private String name;
