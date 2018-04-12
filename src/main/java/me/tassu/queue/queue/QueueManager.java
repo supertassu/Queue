@@ -60,6 +60,7 @@ public class QueueManager {
 
     /**
      * loads a queue from configuration
+     *
      * @param id queue id
      * @return the queue
      */
@@ -80,7 +81,7 @@ public class QueueManager {
             }
 
         } else {
-            plugin.getLogger().info("unknown queue type "+ config.getString("type"));
+            plugin.getLogger().info("unknown queue type " + config.getString("type"));
         }
 
         return null;

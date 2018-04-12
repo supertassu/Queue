@@ -12,8 +12,6 @@
 
 package me.tassu.queue.file;
 
-import com.google.inject.Inject;
-import me.tassu.queue.QueuePlugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
@@ -23,6 +21,13 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * This class represents a configuration file.
+ * @author tassu
+ * @since 1.0
+ * @todo Documentation
+ */
+@SuppressWarnings("unused") // tassu
 public class ConfigFile {
 
     private File file;
@@ -34,41 +39,89 @@ public class ConfigFile {
         reloadConfig();
     }
 
+    /**
+     * Reloads the configuration file from disk.
+     * @throws IOException thrown when reading the file from disk fails
+     */
     public void reloadConfig() throws IOException {
         this.config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(file);
     }
 
     ///////////////////////////////////////////////////
-    // START IMPLEMENTATION
+    //             START IMPLEMENTATION
+    ///////////////////////////////////////////////////
 
+    /**
+     * Returns value from config.
+     * @param path configuration path for the value
+     * @param def value to be returned if it was not defined on configuration
+     * @param <T> type of the value
+     * @return value from config, or {@param def} if not defined on config
+     */
     public <T> T get(String path, T def) {
         return config.get(path, def);
     }
 
+    /**
+     * Returns value from config.
+     * @param path configuration path for the value
+     * @return value from config
+     */
     public Object get(String path) {
         return config.get(path);
     }
 
+    /**
+     * gets the default value for specified path
+     * @param path config path
+     * @return default value
+     */
     public Object getDefault(String path) {
         return config.getDefault(path);
     }
 
+    /**
+     * sets a value to the configuration
+     * note: does not save the config
+     * @param path path on configuration
+     * @param value the value
+     */
     public void set(String path, Object value) {
         config.set(path, value);
     }
 
+    /**
+     * gets a section as a {@link Configuration} object
+     * @param path config path
+     * @return the section
+     */
     public Configuration getSection(String path) {
         return config.getSection(path);
     }
 
+    /**
+     * gets all keys of this configuration
+     * @return all keys
+     */
     public Collection<String> getKeys() {
         return config.getKeys();
     }
 
+    /**
+     * gets a byte object from config
+     * @param path the path
+     * @return the byte
+     */
     public byte getByte(String path) {
         return config.getByte(path);
     }
 
+    /**
+     * gets a byte object from config
+     * @param path the path
+     * @param def value to be used when not defined in config
+     * @return the byte, or <code>def</code> when not specified
+     */
     public byte getByte(String path, byte def) {
         return config.getByte(path, def);
     }

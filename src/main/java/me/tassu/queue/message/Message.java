@@ -13,7 +13,6 @@
 package me.tassu.queue.message;
 
 import com.google.common.collect.Maps;
-import javafx.util.Pair;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;

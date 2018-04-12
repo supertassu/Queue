@@ -55,7 +55,7 @@ public class SimpleQueue implements IQueue {
     private QueueMessagingProperties queueMessagingProperties;
 
     private SimpleQueue(Builder builder) {
-        this.id = id;
+        this.id = builder.id;
         this.name = builder.name;
         this.server = builder.server;
         this.sendDelay = builder.sendDelay;

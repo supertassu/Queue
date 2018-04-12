@@ -6,7 +6,11 @@ import me.tassu.queue.file.FileManager;
 import me.tassu.queue.inject.QueueModule;
 import me.tassu.queue.message.MessageManager;
 import me.tassu.queue.queue.QueueManager;
+import me.tassu.queue.queue.QueueTicker;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
+
+import java.util.concurrent.TimeUnit;
 
 public final class QueuePlugin extends Plugin {
 
@@ -16,6 +20,8 @@ public final class QueuePlugin extends Plugin {
     private MessageManager messageManager;
     @Inject
     private QueueManager queueManager;
+    @Inject
+    private ProxyServer proxy;
 
     private static Injector injector;
 
@@ -26,6 +32,8 @@ public final class QueuePlugin extends Plugin {
         injector.injectMembers(this);
 
         queueManager.refreshQueues();
+
+        proxy.getScheduler().schedule(this, new QueueTicker(), 1, TimeUnit.SECONDS);
 
     }
 

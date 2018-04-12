@@ -20,6 +20,9 @@ import com.google.inject.name.Named;
 import me.tassu.queue.QueuePlugin;
 import me.tassu.queue.file.ConfigFile;
 import me.tassu.queue.message.Message;
+import net.md_5.bungee.api.ProxyServer;
+
+import java.net.ProxySelector;
 
 public class QueueModule extends AbstractModule {
 
@@ -37,6 +40,7 @@ public class QueueModule extends AbstractModule {
     @Override
     protected void configure() {
         this.bind(QueuePlugin.class).toInstance(this.plugin);
+        this.bind(ProxyServer.class).toInstance(ProxyServer.getInstance());
     }
 
     @Provides

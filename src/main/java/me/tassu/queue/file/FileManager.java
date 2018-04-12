@@ -56,6 +56,12 @@ public class FileManager {
         return files.get(name);
     }
 
+    public void reload() throws IOException {
+        getConfigFile().reloadConfig();
+        getMessagesFile().reloadConfig();
+        getQueueFile().reloadConfig();
+    }
+
     private ConfigFile from(String name) {
         if (!plugin.getDataFolder().exists()) {
             if (!plugin.getDataFolder().mkdir()) throw new RuntimeException("could not create data folder");
