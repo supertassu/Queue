@@ -42,15 +42,4 @@ public class QueueModule extends AbstractModule {
         this.bind(QueuePlugin.class).toInstance(this.plugin);
         this.bind(ProxyServer.class).toInstance(ProxyServer.getInstance());
     }
-
-    @Provides
-    ConfigFile getConfigFile(@Named("File Name") String fileName) {
-        return plugin.getFileManager().getFile(fileName);
-    }
-
-    @Provides
-    Message getMessage(@Named("Message Key") String key) {
-        return plugin.getMessageManager().getMessage(key);
-    }
-
 }

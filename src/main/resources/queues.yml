@@ -4,5 +4,5 @@ survival:
   server: "survival"
   # anything below this is optional
   sendDelay: 1 # delay in seconds between sending a player to the server
-  statusMessageDelay: 20
+  statusMessageDelay: 20 # delay in seconds between sending the status message to a player
   sendPositionUpdates: true

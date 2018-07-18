@@ -17,6 +17,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import me.tassu.queue.QueuePlugin;
 import me.tassu.queue.message.Message;
+import me.tassu.queue.message.MessageManager;
 import me.tassu.queue.queue.IQueue;
 import me.tassu.queue.queue.QueueMessagingProperties;
 import me.tassu.queue.queue.QueuePauser;
@@ -30,15 +31,11 @@ import java.util.stream.Collectors;
 
 public class SimpleQueue implements IQueue {
 
-    @Inject
-    @Named("SENDING")
-    private Message msgSendingTo;
-    @Inject
-    @Named("SENT")
-    private Message msgSent;
-    @Inject
-    @Named("SEND_ERROR")
-    private Message msgCouldNotSend;
+    private MessageManager messageManager = QueuePlugin.getInjector().getInstance(MessageManager.class);
+
+    private Message msgSendingTo = messageManager.getMessage("SENDING");
+    private Message msgSent = messageManager.getMessage("SENT");
+    private Message msgCouldNotSend = messageManager.getMessage("SENDING_ERROR");
 
     private List<UUID> players = Lists.newArrayList();
 
@@ -112,15 +109,14 @@ public class SimpleQueue implements IQueue {
                         .addPlaceholder("QUEUE_NAME", getName())
                         .send(player);
             } else {
-                error.printStackTrace();
                 msgCouldNotSend
                         .addPlaceholder("SERVER_NAME", server.getName())
                         .addPlaceholder("QUEUE_NAME", getName())
-                        .addPlaceholder("ERROR_MESSAGE", error.getLocalizedMessage())
+                        .addPlaceholder("ERROR_MESSAGE", getErrorMessage(error))
                         .send(player);
+                throw new RuntimeException(error);
             }
         });
-
 
     }
 
@@ -131,7 +127,17 @@ public class SimpleQueue implements IQueue {
 
     @Override
     public int getQueueLengthAhead(ProxiedPlayer player) {
-        return 0;
+        return getQueueLength() - getPosition(player);
+    }
+
+    @Override
+    public int getPosition(ProxiedPlayer player) {
+        return players.indexOf(player.getUniqueId()) + 1;
+    }
+
+    @Override
+    public QueuePauser pauser() {
+        return pauser;
     }
 
     @Override
@@ -153,12 +159,9 @@ public class SimpleQueue implements IQueue {
         return server;
     }
 
+    @Override
     public int getSendDelay() {
         return sendDelay;
-    }
-
-    public QueuePauser getPauser() {
-        return pauser;
     }
 
     @SuppressWarnings("UnusedReturnValue") // tassu
@@ -209,4 +212,10 @@ public class SimpleQueue implements IQueue {
             return this;
         }
     }
+
+    private String getErrorMessage(Throwable ex) {
+        if (ex == null) return "null";
+        return ex.getLocalizedMessage();
+    }
+
 }

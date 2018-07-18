@@ -28,7 +28,9 @@ public interface IQueue {
     boolean isQueued(ProxiedPlayer player);
     int getQueueLength();
     int getQueueLengthAhead(ProxiedPlayer player);
+    int getPosition(ProxiedPlayer player);
+    int getSendDelay();
 
     QueueMessagingProperties messagingProperties();
-
+    QueuePauser pauser();
 }

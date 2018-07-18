@@ -3,20 +3,23 @@
 
 # general placeholders that mostly work:
 ## QUEUE_NAME  » queue's display name specified on queues.yml
-# placeholders that work on SimpleQueues and PrioritizedQueues
-## SERVER_NAME » server's internal id specified in bungeecords config.yml
 
-
-SENDING: "&b&l* &r&9Connecting you to &b%QUEUE_NAME%&9..."
-SENT: "&b&l* &r&9You were connected to &b%SERVER_NAME% (%QUEUE_NAME%)&9."
+SENDING: "&6&l* &r&eConnecting you to &6%QUEUE_NAME%&e..."
+SENT: "&6&l* &r&eYou were connected to &6%QUEUE_NAME%&e."
 SENDING_ERROR:
 - ""
-- "&b&l* &r&9An error happened whilst connecting to &b%SERVER_NAME%&9."
-- "&b&l** &r&9%ERROR_MESSAGE%"
+- "&6&l* &r&6An error happened whilst connecting to &6%SERVER_NAME%&e."
+- "&6b&l** &r&e%ERROR_MESSAGE%"
 - ""
 
 QUEUE_RESET:
 - ""
-- "&b&l* &r&9The queue you were in is restarting."
-- "&b&l* &r&9Please rejoin the queue."
+- "&6&l* &r&eThe queue you were in is restarting."
+- "&6&l* &r&ePlease rejoin the queue."
 - ""
+
+STATUS:
+- ""
+- "&6&l* &r&eYou are being queued to %QUEUE_NAME%..."
+- "&6&l** &r&eYour current position is &6%POSITION%&e / &6%QUEUE_LENGTH%&e..."
+- "&6&l** &r&eThere are still &6%PLAYERS_AHEAD%&e players ahead of you."

@@ -15,26 +15,27 @@ package me.tassu.queue.file;
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
+import com.google.inject.Singleton;
 import me.tassu.queue.QueuePlugin;
 
 import java.io.*;
 import java.util.Map;
 
-
+@Singleton
 public class FileManager {
 
-    @Inject
     private QueuePlugin plugin;
 
     @Inject
-    @Named("config.yml")
+    public FileManager(QueuePlugin plugin) {
+        this.plugin = plugin;
+        configFile = getFile("config.yml");
+        messagesFile = getFile("messages.yml");
+        queueFile = getFile("queues.yml");
+    }
+
     private ConfigFile configFile;
-    @Inject
-    @Named("messages.yml")
     private ConfigFile messagesFile;
-    @Inject
-    @Named("queues.yml")
     private ConfigFile queueFile;
 
     public ConfigFile getConfigFile() {
@@ -63,6 +64,8 @@ public class FileManager {
     }
 
     private ConfigFile from(String name) {
+        if (plugin == null) throw new IllegalStateException("plugin is null, wtf?");
+
         if (!plugin.getDataFolder().exists()) {
             if (!plugin.getDataFolder().mkdir()) throw new RuntimeException("could not create data folder");
         }
@@ -72,7 +75,7 @@ public class FileManager {
         if (!file.exists()) {
             try {
                 if (!file.createNewFile()) throw new RuntimeException("could not create a file named " + name);
-                try (InputStream is = QueuePlugin.class.getResourceAsStream(name);
+                try (InputStream is = plugin.getResourceAsStream(name);
                      OutputStream os = new FileOutputStream(file)) {
                     ByteStreams.copy(is, os);
                 }

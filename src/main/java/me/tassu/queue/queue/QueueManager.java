@@ -14,34 +14,39 @@ package me.tassu.queue.queue;
 
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import me.tassu.queue.QueuePlugin;
 import me.tassu.queue.file.ConfigFile;
+import me.tassu.queue.file.FileManager;
 import me.tassu.queue.message.Message;
+import me.tassu.queue.message.MessageManager;
 import me.tassu.queue.queue.impl.SimpleQueue;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.config.Configuration;
 
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+@Singleton
 public class QueueManager {
 
-    @Inject
-    @Named("queues.yml")
-    private ConfigFile queueConfig;
-    @Inject
-    @Named("QUEUE_RESET")
-    private Message queueResettingMsg;
-
-    @Inject
     private QueuePlugin plugin;
 
-    private Set<IQueue> queueSet = Sets.newHashSet();
-
-    public QueueManager() {
-
+    @Inject
+    public QueueManager(QueuePlugin plugin, FileManager fileManager, MessageManager messageManager) {
+        this.plugin = plugin;
+        queueConfig = fileManager.getQueueFile();
+        queueResettingMsg = messageManager.getMessage("QUEUE_RESET");
     }
+
+    private ConfigFile queueConfig;
+    private Message queueResettingMsg;
+
+    private Set<IQueue> queueSet = Sets.newHashSet();
 
     /**
      * Reloads and clears all queues.
@@ -100,5 +105,14 @@ public class QueueManager {
         queueSet.add(loadQueueFromConfig(queue));
     }
 
+    /**
+     * @return All queues on the system.
+     */
+    public Set<IQueue> getAllQueues() {
+        return Sets.newHashSet(queueSet);
+    }
 
+    public Optional<IQueue> getQueueById(String name) {
+        return getAllQueues().stream().filter(it -> it.getId().equalsIgnoreCase(name)).findFirst();
+    }
 }
