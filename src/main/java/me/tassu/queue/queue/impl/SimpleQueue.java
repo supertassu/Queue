@@ -114,7 +114,7 @@ public class SimpleQueue implements IQueue {
                         .addPlaceholder("QUEUE_NAME", getName())
                         .addPlaceholder("ERROR_MESSAGE", getErrorMessage(error))
                         .send(player);
-                throw new RuntimeException(error);
+                if (error != null) error.printStackTrace();
             }
         });
 

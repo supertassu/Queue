@@ -14,9 +14,9 @@ package me.tassu.queue.message;
 
 import com.google.common.collect.Maps;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,12 +38,14 @@ public class Message {
     private Map<String, String> placeholders = Maps.newHashMap();
 
     public Message addPlaceholder(String key, String value) {
+        Message cloned;
+
         if (isCloned) {
-            placeholders.put(String.format("%%%s%%", key), value);
-            return this;
+            cloned = this;
+        } else {
+            cloned = copy();
         }
 
-        Message cloned = copy();
         cloned.placeholders.put(String.format("%%%s%%", key), value);
         cloned.isCloned = true;
         return cloned;
@@ -60,14 +62,14 @@ public class Message {
         return this;
     }
 
-    public Message send(ProxiedPlayer... players) {
+    public Message send(CommandSender... senders) {
         for (String tempMessage : message) {
             for (Map.Entry<String, String> entry : placeholders.entrySet()) {
                 tempMessage = tempMessage.replace(entry.getKey(), entry.getValue());
             }
 
             final String finalTempMessage = tempMessage;
-            Arrays.stream(players).forEach(player ->
+            Arrays.stream(senders).forEach(player ->
                     player.sendMessage(new TextComponent(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', finalTempMessage)))));
         }
 

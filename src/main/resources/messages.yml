@@ -9,7 +9,7 @@ SENT: "&6&l* &r&eYou were connected to &6%QUEUE_NAME%&e."
 SENDING_ERROR:
 - ""
 - "&6&l* &r&6An error happened whilst connecting to &6%SERVER_NAME%&e."
-- "&6b&l** &r&e%ERROR_MESSAGE%"
+- "&6&l** &r&e%ERROR_MESSAGE%"
 - ""
 
 QUEUE_RESET:
@@ -23,3 +23,14 @@ STATUS:
 - "&6&l* &r&eYou are being queued to %QUEUE_NAME%..."
 - "&6&l** &r&eYour current position is &6%POSITION%&e / &6%QUEUE_LENGTH%&e..."
 - "&6&l** &r&eThere are still &6%PLAYERS_AHEAD%&e players ahead of you."
+
+COMMAND_HELP_HEADER:
+- ""
+- "&6&lQUEUE LIST &e(%AMOUNT% total) &r&7[Legend: &aACTIVE &ePAUSED&7]"
+COMMAND_HELP_QUEUE_ENTRY:
+- "&%STATUS_COLOR%* &r&e%NAME% &7(id: %ID%)"
+COMMAND_HELP_FOOTER:
+- ""
+- "&6&lQUEUE COMMANDS"
+- "&6&l* &r&e/queue join <id>"
+- "&6&l* &r&e/queue leave"
