@@ -33,6 +33,14 @@ dependencies {
     compile 'com.google.inject:guice:4.0'
 }
 
+import org.apache.tools.ant.filters.ReplaceTokens
+
+processResources {
+    from(sourceSets.main.resources.srcDirs) {
+        filter ReplaceTokens, tokens: [version: version]
+    }
+}
+
 build.dependsOn(shadowJar)
 
 shadowJar {
