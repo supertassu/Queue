@@ -1,4 +1,28 @@
 /*
+ * MIT License
+ *
+ * Copyright (c) 2018 Tassu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/*
  * This file is part of a project by Tassu_.
  * Usage of this file (or parts of it) is not allowed
  * without a permission from Tassu_.
@@ -9,18 +33,14 @@
  *
  * @author tassu
  */
-
 package me.tassu.queue.queue.impl;
 
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import me.tassu.queue.QueuePlugin;
 import me.tassu.queue.message.Message;
 import me.tassu.queue.message.MessageManager;
 import me.tassu.queue.queue.IQueue;
 import me.tassu.queue.queue.QueueMessagingProperties;
-import me.tassu.queue.queue.QueuePauser;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -45,9 +65,8 @@ public class SimpleQueue implements IQueue {
     // as defined on bungeecord configuration
     private ServerInfo server;
 
-    // in ticks
+    // in seconds
     private int sendDelay;
-    private QueuePauser pauser;
 
     private QueueMessagingProperties queueMessagingProperties;
 
@@ -56,7 +75,6 @@ public class SimpleQueue implements IQueue {
         this.name = builder.name;
         this.server = builder.server;
         this.sendDelay = builder.sendDelay;
-        this.pauser = builder.pauser;
         this.queueMessagingProperties = builder.messager;
     }
 
@@ -67,6 +85,7 @@ public class SimpleQueue implements IQueue {
 
     @Override
     public void addPlayer(ProxiedPlayer player) {
+        if (isQueued(player)) return;
         players.add(player.getUniqueId());
     }
 
@@ -127,17 +146,12 @@ public class SimpleQueue implements IQueue {
 
     @Override
     public int getQueueLengthAhead(ProxiedPlayer player) {
-        return getQueueLength() - getPosition(player);
+        return getPosition(player) - 1;
     }
 
     @Override
     public int getPosition(ProxiedPlayer player) {
         return players.indexOf(player.getUniqueId()) + 1;
-    }
-
-    @Override
-    public QueuePauser pauser() {
-        return pauser;
     }
 
     @Override
@@ -170,7 +184,6 @@ public class SimpleQueue implements IQueue {
         private String name;
         private ServerInfo server;
         private int sendDelay;
-        private QueuePauser pauser = new QueuePauser();
         private QueueMessagingProperties messager = new QueueMessagingProperties();
 
         private Builder() {
@@ -199,11 +212,6 @@ public class SimpleQueue implements IQueue {
 
         public Builder sendDelay(int sendDelay) {
             this.sendDelay = sendDelay;
-            return this;
-        }
-
-        public Builder pauser(QueuePauser pauser) {
-            this.pauser = pauser;
             return this;
         }
 

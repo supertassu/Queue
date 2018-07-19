@@ -22,48 +22,38 @@
  * SOFTWARE.
  */
 
-/*
- * This file is part of a project by Tassu_.
- * Usage of this file (or parts of it) is not allowed
- * without a permission from Tassu_.
- *
- * You may contact Tassu_ by e-mailing to <tassu@tassu.me>.
- *
- * Current Package: me.tassu.queue.queue
- *
- * @author tassu
- */
 package me.tassu.queue.queue;
 
-import net.md_5.bungee.config.Configuration;
+import com.google.common.collect.Maps;
+import com.google.inject.Singleton;
 
-public class QueueMessagingProperties {
+import java.util.Map;
 
-    private boolean messageOnUpdate = true;
+@Singleton
+public class PauseManager {
 
-    // set to -1 to disable
-    private int messageRepeatSeconds = 20;
+    private Map<String, Long> pausedQueues = Maps.newHashMap();
 
-    static QueueMessagingProperties fromConfig(Configuration configuration) {
-        QueueMessagingProperties properties = new QueueMessagingProperties();
+    public void pause(IQueue queue) {
+        pausedQueues.put(queue.getId(), -1L);
+    }
 
-        if (configuration.getKeys().contains("statusMessageDelay")) {
-            properties.messageRepeatSeconds = configuration.getInt("statusMessageDelay");
+    public void pause(IQueue queue, long unpauseTime) {
+        pausedQueues.put(queue.getId(), unpauseTime);
+    }
+
+    public void unpause(IQueue queue) {
+        pausedQueues.remove(queue.getId());
+    }
+
+    public boolean isPaused(IQueue queue) {
+        if (!pausedQueues.containsKey(queue.getId())) return false;
+        if (pausedQueues.get(queue.getId()) == -1L) return true;
+        if (pausedQueues.get(queue.getId()) < System.currentTimeMillis()) {
+            pausedQueues.remove(queue.getId());
         }
-        if (configuration.getKeys().contains("sendPositionUpdates")) {
-            properties.messageOnUpdate = configuration.getBoolean("sendPositionUpdates");
-        }
 
-        return properties;
+        return pausedQueues.containsKey(queue.getId());
     }
 
-
-    public int getMessageRepeatSeconds() {
-        return messageRepeatSeconds;
-    }
-
-    public boolean shouldMessageOnUpdate() {
-        return messageOnUpdate;
-    }
 }
-

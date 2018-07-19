@@ -1,0 +1,46 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
+    }
+}
+
+plugins {
+    id 'io.franzbecker.gradle-lombok' version '1.14'
+    id 'com.github.johnrengelman.shadow' version '2.0.4'
+    id 'net.minecrell.licenser' version '0.4'
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'sonatype-oss-repo'
+        url = 'https://oss.sonatype.org/content/groups/public/'
+    }
+}
+
+group = 'me.tassu'
+version = '1.0.0-SNAPSHOT'
+description = 'a queue plugin'
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compileOnly 'net.md-5:bungeecord-api:1.12-SNAPSHOT'
+    compileOnly "me.lucko.luckperms:luckperms-api:4.2"
+    compile 'com.google.inject:guice:4.0'
+}
+
+build.dependsOn(shadowJar)
+
+shadowJar {
+    baseName = 'Queue'
+    classifier = null
+    version = null
+}
+
+license {
+    header = project.file('LICENSE')
+}

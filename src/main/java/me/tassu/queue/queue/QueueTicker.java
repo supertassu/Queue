@@ -1,4 +1,28 @@
 /*
+ * MIT License
+ *
+ * Copyright (c) 2018 Tassu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/*
  * This file is part of a project by Tassu_.
  * Usage of this file (or parts of it) is not allowed
  * without a permission from Tassu_.
@@ -9,7 +33,6 @@
  *
  * @author tassu
  */
-
 package me.tassu.queue.queue;
 
 import com.google.inject.Inject;
@@ -22,12 +45,13 @@ import java.util.Calendar;
 public class QueueTicker implements Runnable {
 
     @Inject
-    public QueueTicker(QueueManager queueManager, MessageManager messageManager) {
-        this.queueManager = queueManager;
+    public QueueTicker(MessageManager messageManager) {
         this.msgStatusUpdate = messageManager.getMessage("STATUS");
     }
 
-    private QueueManager queueManager;
+    @Inject private QueueManager queueManager;
+    @Inject private PauseManager pauser;
+
     private Message msgStatusUpdate;
 
     @Override
@@ -35,15 +59,10 @@ public class QueueTicker implements Runnable {
         queueManager
                 .getAllQueues()
                 .forEach(queue -> {
-                    if (queue.pauser().isPaused()) {
-                        if (queue.pauser().getUnpauseDate() < System.currentTimeMillis()) queue.pauser().unpause();
-                        else return;
-                    }
-
                     val second = Calendar.getInstance().get(Calendar.SECOND);
                     boolean sendStatus = false;
 
-                    if (second % queue.getSendDelay() == 0) {
+                    if (second % queue.getSendDelay() == 0 && !pauser.isPaused(queue)) {
                         queue.sendFirstPlayer();
 
                         if (queue.messagingProperties().shouldMessageOnUpdate()) {
@@ -51,8 +70,7 @@ public class QueueTicker implements Runnable {
                         }
                     }
 
-                    if (second % queue.messagingProperties().getMessageRepeatSeconds() == 0
-                            && !sendStatus) {
+                    if (second % queue.messagingProperties().getMessageRepeatSeconds() == 0) {
                         sendStatus = true;
                     }
 
