@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Queue.iml" filepath="$PROJECT_DIR$/Queue.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Queue.iml" filepath="$PROJECT_DIR$/.idea/Queue.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Queue_main.iml" filepath="$PROJECT_DIR$/.idea/modules/Queue_main.iml" group="Queue" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Queue_test.iml" filepath="$PROJECT_DIR$/.idea/modules/Queue_test.iml" group="Queue" />
     </modules>
   </component>
 </project>

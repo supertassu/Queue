@@ -37,6 +37,7 @@ package me.tassu.queue.queue;
 
 import com.google.inject.Inject;
 import lombok.val;
+import me.tassu.queue.api.MessagingChannelReader;
 import me.tassu.queue.message.Message;
 import me.tassu.queue.message.MessageManager;
 
@@ -51,6 +52,7 @@ public class QueueTicker implements Runnable {
 
     @Inject private QueueManager queueManager;
     @Inject private PauseManager pauser;
+    @Inject private MessagingChannelReader api;
 
     private Message msgStatusUpdate;
 
@@ -60,6 +62,11 @@ public class QueueTicker implements Runnable {
                 .getAllQueues()
                 .forEach(queue -> {
                     val second = Calendar.getInstance().get(Calendar.SECOND);
+
+                    if (second % 5 == 0) {
+                        api.updatePlayers();
+                    }
+
                     boolean sendStatus = false;
 
                     if (second % queue.getSendDelay() == 0 && !pauser.isPaused(queue)) {

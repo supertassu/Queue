@@ -46,6 +46,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -80,22 +81,28 @@ public class SimpleQueue implements IQueue {
 
     @Override
     public List<ProxiedPlayer> getPlayers() {
-        return players.stream().map(ProxyServer.getInstance()::getPlayer).collect(Collectors.toList());
+        return players.stream()
+                .map(ProxyServer.getInstance()::getPlayer)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     @Override
     public void addPlayer(ProxiedPlayer player) {
+        if (player == null) return;
         if (isQueued(player)) return;
         players.add(player.getUniqueId());
     }
 
     @Override
     public void removePlayer(ProxiedPlayer player) {
+        if (player == null) return;
         players.remove(player.getUniqueId());
     }
 
     @Override
     public boolean isQueued(ProxiedPlayer player) {
+        if (player == null) return false;
         return players.contains(player.getUniqueId());
     }
 
@@ -151,6 +158,7 @@ public class SimpleQueue implements IQueue {
 
     @Override
     public int getPosition(ProxiedPlayer player) {
+        if (player == null) return -1;
         return players.indexOf(player.getUniqueId()) + 1;
     }
 

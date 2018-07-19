@@ -25,11 +25,16 @@
 package me.tassu.queue.api;
 
 import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
 import lombok.val;
+import me.tassu.queue.message.Message;
+import me.tassu.queue.message.MessageManager;
 import me.tassu.queue.queue.QueueManager;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
@@ -38,8 +43,16 @@ import java.util.UUID;
 
 public class MessagingChannelReader implements Listener {
 
-    @Inject private ProxyServer proxyServer;
+    @Inject private ProxyServer proxy;
     @Inject private QueueManager queueManager;
+
+    private Message joinedMessage, leftMessage;
+
+    @Inject
+    public MessagingChannelReader(MessageManager messageManager) {
+        this.joinedMessage = messageManager.getMessage("JOINED");
+        this.leftMessage = messageManager.getMessage("LEFT");
+    }
 
     @EventHandler
     public void onPluginMessage(PluginMessageEvent event) {
@@ -53,26 +66,54 @@ public class MessagingChannelReader implements Listener {
             val uuid = UUID.fromString(input.readUTF());
             val optQueue = queueManager.getQueueById(input.readUTF());
 
-            if (proxyServer.getPlayer(uuid) == null) return;
+            if (proxy.getPlayer(uuid) == null) return;
             if (!optQueue.isPresent()) return;
 
-            val player = proxyServer.getPlayer(uuid);
+            val player = proxy.getPlayer(uuid);
 
             queueManager.getQueueForPlayer(player).ifPresent(it -> it.removePlayer(player));
 
             val queue = optQueue.get();
 
+            joinedMessage.addPlaceholder("QUEUE_NAME", queue.getName()).send(player);
             queue.addPlayer(player);
         } else if (sub.equals("LeaveQueue")) {
             val uuid = UUID.fromString(input.readUTF());
-            if (proxyServer.getPlayer(uuid) == null) return;
-            val player = proxyServer.getPlayer(uuid);
+            if (proxy.getPlayer(uuid) == null) return;
+            val player = proxy.getPlayer(uuid);
 
             val optQueue = queueManager.getQueueForPlayer(player);
             if (!optQueue.isPresent()) return;
             val queue = optQueue.get();
 
+            leftMessage.addPlaceholder("QUEUE_NAME", queue.getName()).send(player);
             queue.removePlayer(player);
+        }
+    }
+
+    public void updatePlayers() {
+        for (ServerInfo info : proxy.getServers().values()) {
+            if (info.getPlayers().isEmpty()) continue;
+
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("QueueUpdate");
+
+            for (ProxiedPlayer player : info.getPlayers()) {
+                out.writeUTF(player.getUniqueId().toString());
+                val queue = queueManager.getQueueForPlayer(player);
+
+                if (queue.isPresent()) {
+                    out.writeUTF(queue.get().getName());
+                    out.writeUTF(String.valueOf(queue.get().getPosition(player)));
+                    out.writeUTF(String.valueOf(queue.get().getQueueLength()));
+                } else {
+                    out.writeUTF("");
+                    out.writeUTF("");
+                    out.writeUTF("");
+                }
+            }
+
+            info.sendData("BungeeCord", out.toByteArray());
         }
     }
 
