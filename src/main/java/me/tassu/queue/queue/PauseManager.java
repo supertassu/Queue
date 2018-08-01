@@ -47,6 +47,8 @@ public class PauseManager {
     }
 
     public boolean isPaused(IQueue queue) {
+        if (true) return true; // TODO REMOVE BEFORE RELEASE
+
         if (!pausedQueues.containsKey(queue.getId())) return false;
         if (pausedQueues.get(queue.getId()) == -1L) return true;
         if (pausedQueues.get(queue.getId()) < System.currentTimeMillis()) {

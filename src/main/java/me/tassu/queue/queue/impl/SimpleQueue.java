@@ -22,24 +22,16 @@
  * SOFTWARE.
  */
 
-/*
- * This file is part of a project by Tassu_.
- * Usage of this file (or parts of it) is not allowed
- * without a permission from Tassu_.
- *
- * You may contact Tassu_ by e-mailing to <tassu@tassu.me>.
- *
- * Current Package: me.tassu.queue.queue
- *
- * @author tassu
- */
 package me.tassu.queue.queue.impl;
 
 import com.google.common.collect.Lists;
+import lombok.val;
 import me.tassu.queue.QueuePlugin;
+import me.tassu.queue.api.ex.QueueJoinException;
 import me.tassu.queue.message.Message;
 import me.tassu.queue.message.MessageManager;
 import me.tassu.queue.queue.IQueue;
+import me.tassu.queue.queue.QueueManager;
 import me.tassu.queue.queue.QueueMessagingProperties;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -53,10 +45,14 @@ import java.util.stream.Collectors;
 public class SimpleQueue implements IQueue {
 
     private MessageManager messageManager = QueuePlugin.getInjector().getInstance(MessageManager.class);
+    private QueueManager queueManager = QueuePlugin.getInjector().getInstance(QueueManager.class);
 
     private Message msgSendingTo = messageManager.getMessage("SENDING");
     private Message msgSent = messageManager.getMessage("SENT");
     private Message msgCouldNotSend = messageManager.getMessage("SENDING_ERROR");
+
+    private Message msgInvalidProtocol = messageManager.getMessage("JOIN_ERROR_INVALID_PROTOCOL");
+    private Message msgAlreadyQueued = messageManager.getMessage("JOIN_ERROR_ALREADY_QUEUED");
 
     private List<UUID> players = Lists.newArrayList();
 
@@ -69,6 +65,9 @@ public class SimpleQueue implements IQueue {
     // in seconds
     private int sendDelay;
 
+    // protocol stuff
+    private int requiredExactProtocol, requiredMinProtocol, requiredMaxProtocol;
+
     private QueueMessagingProperties queueMessagingProperties;
 
     private SimpleQueue(Builder builder) {
@@ -76,7 +75,10 @@ public class SimpleQueue implements IQueue {
         this.name = builder.name;
         this.server = builder.server;
         this.sendDelay = builder.sendDelay;
-        this.queueMessagingProperties = builder.messager;
+        this.requiredExactProtocol = builder.requiredExactProtocol;
+        this.requiredMinProtocol = builder.requiredMinProtocol;
+        this.requiredMaxProtocol = builder.requiredMaxProtocol;
+        this.queueMessagingProperties = builder.queueMessagingProperties;
     }
 
     @Override
@@ -88,9 +90,34 @@ public class SimpleQueue implements IQueue {
     }
 
     @Override
-    public void addPlayer(ProxiedPlayer player) {
+    public void addPlayer(ProxiedPlayer player) throws QueueJoinException {
         if (player == null) return;
-        if (isQueued(player)) return;
+
+        val current = queueManager.getQueueForPlayer(player);
+
+        if (current.isPresent()) throw new QueueJoinException(
+                "Already queued to " + current.get().getName(),
+                msgAlreadyQueued.addPlaceholder("QUEUE", current.get().getName()));
+
+        val protocol = player.getPendingConnection().getVersion();
+
+        if (requiredExactProtocol != -1) {
+            if (protocol != requiredExactProtocol) {
+                throw new QueueJoinException("Invalid protocol version (req: " + requiredExactProtocol + " != actual: "
+                        + protocol + ")", msgInvalidProtocol);
+            }
+        } else if (requiredMaxProtocol != -1) {
+            if (requiredMaxProtocol > protocol) {
+                throw new QueueJoinException("Invalid protocol version (req: " + requiredMinProtocol + " > actual: "
+                        + protocol + ")", msgInvalidProtocol);
+            }
+        } else if (requiredMinProtocol != -1) {
+            if (requiredMinProtocol < protocol) {
+                throw new QueueJoinException("Invalid protocol version (req: " + requiredMinProtocol + " < actual: "
+                        + protocol + ")", msgInvalidProtocol);
+            }
+        }
+
         players.add(player.getUniqueId());
     }
 
@@ -158,7 +185,8 @@ public class SimpleQueue implements IQueue {
 
     @Override
     public int getPosition(ProxiedPlayer player) {
-        if (player == null) return -1;
+        if (player == null) throw new IllegalArgumentException("no such player");
+        if (!isQueued(player)) throw new IllegalArgumentException("not queued");
         return players.indexOf(player.getUniqueId()) + 1;
     }
 
@@ -186,21 +214,27 @@ public class SimpleQueue implements IQueue {
         return sendDelay;
     }
 
-    @SuppressWarnings("UnusedReturnValue") // tassu
+    private String getErrorMessage(Throwable ex) {
+        if (ex == null) return "null";
+        return ex.getLocalizedMessage();
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
     public static final class Builder {
         private String id;
         private String name;
         private ServerInfo server;
         private int sendDelay;
-        private QueueMessagingProperties messager = new QueueMessagingProperties();
+        private int requiredExactProtocol = -1;
+        private int requiredMinProtocol = -1;
+        private int requiredMaxProtocol = -1;
+        private QueueMessagingProperties queueMessagingProperties;
 
         private Builder() {
         }
 
         public SimpleQueue build() {
-            SimpleQueue queue = new SimpleQueue(this);
-            QueuePlugin.getInjector().injectMembers(queue);
-            return queue;
+            return new SimpleQueue(this);
         }
 
         public Builder id(String id) {
@@ -223,15 +257,24 @@ public class SimpleQueue implements IQueue {
             return this;
         }
 
+        public Builder requiredExactProtocol(int requiredExactProtocol) {
+            this.requiredExactProtocol = requiredExactProtocol;
+            return this;
+        }
+
+        public Builder requiredMinProtocol(int requiredMinProtocol) {
+            this.requiredMinProtocol = requiredMinProtocol;
+            return this;
+        }
+
+        public Builder requiredMaxProtocol(int requiredMaxProtocol) {
+            this.requiredMaxProtocol = requiredMaxProtocol;
+            return this;
+        }
+
         public Builder messager(QueueMessagingProperties queueMessagingProperties) {
-            this.messager = queueMessagingProperties;
+            this.queueMessagingProperties = queueMessagingProperties;
             return this;
         }
     }
-
-    private String getErrorMessage(Throwable ex) {
-        if (ex == null) return "null";
-        return ex.getLocalizedMessage();
-    }
-
 }

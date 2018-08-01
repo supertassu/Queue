@@ -22,30 +22,13 @@
  * SOFTWARE.
  */
 
-/*
- * This file is part of a project by Tassu_.
- * Usage of this file (or parts of it) is not allowed
- * without a permission from Tassu_.
- *
- * You may contact Tassu_ by e-mailing to <tassu@tassu.me>.
- *
- * Current Package: me.tassu.queue.util
- *
- * @author tassu
- */
 package me.tassu.queue.inject;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provides;
-import com.google.inject.name.Named;
 import me.tassu.queue.QueuePlugin;
-import me.tassu.queue.file.ConfigFile;
-import me.tassu.queue.message.Message;
 import net.md_5.bungee.api.ProxyServer;
-
-import java.net.ProxySelector;
 
 public class QueueModule extends AbstractModule {
 

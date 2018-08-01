@@ -29,6 +29,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
 import lombok.val;
+import me.tassu.queue.api.ex.QueueJoinException;
 import me.tassu.queue.message.Message;
 import me.tassu.queue.message.MessageManager;
 import me.tassu.queue.queue.QueueManager;
@@ -63,7 +64,7 @@ public class MessagingChannelReader implements Listener {
 
         ByteArrayDataInput input = ByteStreams.newDataInput(event.getData());
         String sub = input.readUTF();
-        if (sub.equals("JoinQueue")) {
+        if (sub.equals("queue:join")) {
             val uuid = UUID.fromString(input.readUTF());
             val optQueue = queueManager.getQueueById(input.readUTF());
 
@@ -72,13 +73,15 @@ public class MessagingChannelReader implements Listener {
 
             val player = proxy.getPlayer(uuid);
 
-            queueManager.getQueueForPlayer(player).ifPresent(it -> it.removePlayer(player));
-
             val queue = optQueue.get();
 
-            joinedMessage.addPlaceholder("QUEUE_NAME", queue.getName()).send(player);
-            queue.addPlayer(player);
-        } else if (sub.equals("LeaveQueue")) {
+            try {
+                queue.addPlayer(player);
+                joinedMessage.addPlaceholder("QUEUE_NAME", queue.getName()).send(player);
+            } catch (QueueJoinException e) {
+                e.getUserMessage().ifPresent(it -> it.send(player));
+            }
+        } else if (sub.equals("queue:leave")) {
             val uuid = UUID.fromString(input.readUTF());
             if (proxy.getPlayer(uuid) == null) return;
             val player = proxy.getPlayer(uuid);
@@ -97,7 +100,7 @@ public class MessagingChannelReader implements Listener {
             if (info.getPlayers().isEmpty()) continue;
 
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeUTF("QueueUpdate");
+            out.writeUTF("queue:update");
 
             for (ProxiedPlayer player : info.getPlayers()) {
                 out.writeUTF(player.getUniqueId().toString());

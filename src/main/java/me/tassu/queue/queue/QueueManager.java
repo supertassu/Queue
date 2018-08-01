@@ -22,23 +22,12 @@
  * SOFTWARE.
  */
 
-/*
- * This file is part of a project by Tassu_.
- * Usage of this file (or parts of it) is not allowed
- * without a permission from Tassu_.
- *
- * You may contact Tassu_ by e-mailing to <tassu@tassu.me>.
- *
- * Current Package: me.tassu.queue.queue
- *
- * @author tassu
- */
 package me.tassu.queue.queue;
 
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
+import lombok.val;
 import me.tassu.queue.QueuePlugin;
 import me.tassu.queue.file.ConfigFile;
 import me.tassu.queue.file.FileManager;
@@ -49,11 +38,8 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.config.Configuration;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Singleton
 public class QueueManager {
@@ -94,7 +80,7 @@ public class QueueManager {
      * @return the queue
      */
     private IQueue loadQueueFromConfig(String id) {
-        Configuration config = queueConfig.getSection(id);
+        val config = queueConfig.getSection(id);
         if (config == null) return null;
 
         if (config.getString("type").equalsIgnoreCase("SimpleQueue")) {
@@ -107,10 +93,26 @@ public class QueueManager {
             if (config.getKeys().contains("sendDelay")) {
                 queue.sendDelay(config.getInt("sendDelay"));
             }
+            
+            if (config.getKeys().contains("requiredProtocol")) {
+                val protocol = config.getSection("requiredProtocol");
 
+                if (protocol.getKeys().contains("exact")) {
+                    queue.requiredExactProtocol(protocol.getInt("exact"));
+                } else {
+                    if (protocol.getKeys().contains("min")) {
+                        queue.requiredMinProtocol(protocol.getInt("min"));
+                    }
+
+                    if (protocol.getKeys().contains("max")) {
+                        queue.requiredMaxProtocol(protocol.getInt("max"));
+                    }
+                }
+            }
+            
             return queue.build();
         } else {
-            plugin.getLogger().info("unknown queue type " + config.getString("type"));
+            plugin.getLogger().severe("unknown queue type " + config.getString("type"));
         }
 
         return null;

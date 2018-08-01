@@ -29,4 +29,8 @@ survival:
   # anything below this is optional
   sendDelay: 1 # delay in seconds between sending a player to the server
   statusMessageDelay: 20 # delay in seconds between sending the status message to a player
-  sendPositionUpdates: false
+  sendPositionUpdates: false # send the status message when the position changes
+  requiredProtocol: # fully optional
+    # min: x
+    # max: x
+    exact: 393 # 393 == 1.13

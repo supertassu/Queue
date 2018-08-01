@@ -47,22 +47,15 @@ STATUS:
 - "&6&l** &r&eYour current position is &6%POSITION%&e / &6%QUEUE_LENGTH%&e..."
 - "&6&l** &r&eThere are still &6%PLAYERS_AHEAD%&e players ahead of you."
 
-JOINED:
-- "&6&l* &r&eYou are now being queued to &6%QUEUE_NAME%&e..."
+JOINED: "&6&l* &r&eYou are now being queued to &6%QUEUE_NAME%&e..."
+LEFT: "&6&l* &r&eYou are no longer being queued to &6%QUEUE_NAME%&e..."
+NOT_QUEUED: "&6&l* &r&eYou are not queued."
 
-LEFT:
-- "&6&l* &r&eYou are no longer being queued to &6%QUEUE_NAME%&e..."
-
-NOT_QUEUED:
-- "&6&l* &r&eYou are not queued."
-
-COMMAND_USAGE:
-- "&6&l* &r&eUsage: &6%USAGE%"
+COMMAND_USAGE: "&6&l* &r&eUsage: &6%USAGE%"
 COMMAND_HELP_HEADER:
 - ""
 - "&6&lQUEUE LIST &e(%AMOUNT% total) &r&7[Legend: &aACTIVE &ePAUSED&7]"
-COMMAND_HELP_QUEUE_ENTRY:
-- "&%STATUS_COLOR%* &r&e%NAME% &7(id: %ID%)"
+COMMAND_HELP_QUEUE_ENTRY: "&%STATUS_COLOR%* &r&e%NAME% &7(id: %ID%)"
 COMMAND_HELP_FOOTER:
 - ""
 - "&6&lQUEUE COMMANDS"
@@ -70,7 +63,8 @@ COMMAND_HELP_FOOTER:
 - "&6&l* &r&e/queue leave"
 - "&6&l* &r&e/queue pause <id>"
 - "&6&l* &r&e/queue resume <id>"
-COMMAND_NO_SUCH_QUEUE:
-- "&6&l* &r&eThere is no such queue named &6%QUEUE_NAME%&e."
-COMMAND_NO_PERMISSIONS:
-- "&6&7* &r&eInvalid permissions."
+COMMAND_NO_SUCH_QUEUE: "&6&l* &r&eThere is no such queue named &6%QUEUE_NAME%&e."
+COMMAND_NO_PERMISSIONS: "&6&7* &r&eInvalid permissions."
+
+JOIN_ERROR_INVALID_PROTOCOL: "&6&l* &r&eThis queue does not support your client version."
+JOIN_ERROR_ALREADY_QUEUED: "&6&l* &r&eYou are already queued to %QUEUE%."

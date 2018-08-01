@@ -27,6 +27,7 @@ package me.tassu.queue.command;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.val;
+import me.tassu.queue.api.ex.QueueJoinException;
 import me.tassu.queue.message.Message;
 import me.tassu.queue.message.MessageManager;
 import me.tassu.queue.queue.PauseManager;
@@ -37,7 +38,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 
 @Singleton
-public class QueueCommand extends Command {
+public class  QueueCommand extends Command {
 
     @Inject
     private QueueManager manager;
@@ -100,8 +101,12 @@ public class QueueCommand extends Command {
                 return;
             }
 
-            queue.get().addPlayer(player);
-            joinedMessage.addPlaceholder("QUEUE_NAME", queue.get().getName()).send(sender);
+            try {
+                queue.get().addPlayer(player);
+                joinedMessage.addPlaceholder("QUEUE_NAME", queue.get().getName()).send(sender);
+            } catch (QueueJoinException e) {
+                e.getUserMessage().ifPresent(it -> it.send(player));
+            }
         } else if (args[0].equalsIgnoreCase("leave")) {
             if (!(sender instanceof ProxiedPlayer)) return;
             val player = (ProxiedPlayer) sender;
@@ -133,8 +138,7 @@ public class QueueCommand extends Command {
             }
 
             pauser.pause(queue.get());
-            sender.sendMessage(TextComponent.fromLegacyText("&cPaused queue " + queue.get().getName() + ": "
-                    + pauser.isPaused(queue.get())));
+            sender.sendMessage(TextComponent.fromLegacyText("§7Paused queue §r" + queue.get().getName()));
         } else if (args[0].equalsIgnoreCase("resume")) {
             if (!sender.hasPermission("queue.command.resume")) {
                 noPermissionsMessage.send(sender);
@@ -154,8 +158,7 @@ public class QueueCommand extends Command {
             }
 
             pauser.unpause(queue.get());
-            sender.sendMessage(TextComponent.fromLegacyText("&aResumed queue " + queue.get().getName() + ": "
-                    + pauser.isPaused(queue.get())));
+            sender.sendMessage(TextComponent.fromLegacyText("§7Resumed queue §r" + queue.get().getName()));
         }
     }
 }

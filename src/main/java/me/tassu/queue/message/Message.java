@@ -22,20 +22,11 @@
  * SOFTWARE.
  */
 
-/*
- * This file is part of a project by Tassu_.
- * Usage of this file (or parts of it) is not allowed
- * without a permission from Tassu_.
- *
- * You may contact Tassu_ by e-mailing to <tassu@tassu.me>.
- *
- * Current Package: me.tassu.queue.message
- *
- * @author tassu
- */
 package me.tassu.queue.message;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import lombok.val;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -74,30 +65,37 @@ public class Message {
         return cloned;
     }
 
-    public Message broadcast() {
+    private List<String> build() {
+        val list = Lists.<String>newArrayList();
         for (String tempMessage : message) {
             for (Map.Entry<String, String> entry : placeholders.entrySet()) {
                 tempMessage = tempMessage.replace(entry.getKey(), entry.getValue());
             }
-            ProxyServer.getInstance().broadcast(new TextComponent(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', tempMessage))));
+
+            list.add(ChatColor.translateAlternateColorCodes('&', tempMessage));
+        }
+
+        return list;
+    }
+
+    public Message broadcast() {
+        for (String tempMessage : build()) {
+            ProxyServer.getInstance().broadcast(TextComponent.fromLegacyText(tempMessage));
         }
 
         return this;
     }
 
     public Message send(CommandSender... senders) {
-        for (String tempMessage : message) {
-            for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-                tempMessage = tempMessage.replace(entry.getKey(), entry.getValue());
-            }
-
-            final String finalTempMessage = tempMessage;
-            Arrays.stream(senders).forEach(player ->
-                    player.sendMessage(new TextComponent(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', finalTempMessage)))));
+        for (String tempMessage : build()) {
+            Arrays.stream(senders).forEach(player -> player.sendMessage(TextComponent.fromLegacyText(tempMessage)));
         }
 
         return this;
     }
 
 
+    public List<String> getMessage() {
+        return build();
+    }
 }

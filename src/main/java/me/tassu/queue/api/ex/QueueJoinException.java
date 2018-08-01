@@ -22,32 +22,28 @@
  * SOFTWARE.
  */
 
-package me.tassu.queue.queue;
+package me.tassu.queue.api.ex;
 
-import me.tassu.queue.api.ex.QueueJoinException;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import me.tassu.queue.message.Message;
 
-import java.util.List;
+import java.util.Optional;
 
-public interface IQueue {
+@AllArgsConstructor
+public class QueueJoinException extends QueueException {
 
-    String getId();
-    String getName();
+    public QueueJoinException(String message) {
+        this.message = message;
+        this.userMessage = null;
+    }
 
-    List<ProxiedPlayer> getPlayers();
+    @Getter private final String message;
 
-    void addPlayer(ProxiedPlayer player) throws QueueJoinException;
-    void removePlayer(ProxiedPlayer player);
-    boolean isQueued(ProxiedPlayer player);
+    private final Message userMessage;
 
-    void sendFirstPlayer();
-
-    int getQueueLength();
-    int getQueueLengthAhead(ProxiedPlayer player);
-
-    int getPosition(ProxiedPlayer player);
-    int getSendDelay();
-
-    QueueMessagingProperties messagingProperties();
-
+    @Override
+    public Optional<Message> getUserMessage() {
+        return Optional.ofNullable(userMessage);
+    }
 }
