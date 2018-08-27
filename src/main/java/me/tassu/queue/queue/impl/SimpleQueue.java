@@ -93,6 +93,10 @@ public class SimpleQueue implements IQueue {
     public void addPlayer(ProxiedPlayer player) throws QueueJoinException {
         if (player == null) return;
 
+        if (player.getServer().getInfo() == server) {
+            throw new QueueJoinException("Already in target server " + server.getName());
+        }
+
         val current = queueManager.getQueueForPlayer(player);
 
         if (current.isPresent()) throw new QueueJoinException(

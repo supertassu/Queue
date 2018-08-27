@@ -25,3 +25,4 @@
 name: Queue
 version: @version@
 main: me.tassu.queue.QueuePlugin
+author: Tassu

@@ -33,4 +33,4 @@ survival:
   requiredProtocol: # fully optional
     # min: x
     # max: x
-    exact: 393 # 393 == 1.13
+    exact: 401 # 393 == 1.13

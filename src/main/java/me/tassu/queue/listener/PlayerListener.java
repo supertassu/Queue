@@ -22,38 +22,27 @@
  * SOFTWARE.
  */
 
-package me.tassu.queue.queue;
+package me.tassu.queue.listener;
 
-import com.google.common.collect.Maps;
-import com.google.inject.Singleton;
+import com.google.inject.Inject;
+import me.tassu.queue.queue.QueueManager;
+import net.md_5.bungee.api.event.PlayerDisconnectEvent;
+import net.md_5.bungee.api.event.ServerSwitchEvent;
+import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.event.EventHandler;
 
-import java.util.Map;
+public class PlayerListener implements Listener {
 
-@Singleton
-public class PauseManager {
+    @Inject private QueueManager queueManager;
 
-    private Map<String, Long> pausedQueues = Maps.newHashMap();
-
-    public void pause(IQueue queue) {
-        pausedQueues.put(queue.getId(), -1L);
+    @EventHandler
+    public void onLeave(PlayerDisconnectEvent event) {
+        queueManager.getQueueForPlayer(event.getPlayer()).ifPresent(q -> q.removePlayer(event.getPlayer()));
     }
 
-    public void pause(IQueue queue, long unpauseTime) {
-        pausedQueues.put(queue.getId(), unpauseTime);
-    }
-
-    public void unpause(IQueue queue) {
-        pausedQueues.remove(queue.getId());
-    }
-
-    public boolean isPaused(IQueue queue) {
-        if (!pausedQueues.containsKey(queue.getId())) return false;
-        if (pausedQueues.get(queue.getId()) == -1L) return true;
-        if (pausedQueues.get(queue.getId()) < System.currentTimeMillis()) {
-            pausedQueues.remove(queue.getId());
-        }
-
-        return pausedQueues.containsKey(queue.getId());
+    @EventHandler
+    public void onServerSwitch(ServerSwitchEvent event) {
+        queueManager.getQueueForPlayer(event.getPlayer()).ifPresent(q -> q.removePlayer(event.getPlayer()));
     }
 
 }

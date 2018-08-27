@@ -30,6 +30,7 @@ import lombok.val;
 import me.tassu.queue.api.MessagingChannelReader;
 import me.tassu.queue.command.QueueCommand;
 import me.tassu.queue.inject.QueueModule;
+import me.tassu.queue.listener.PlayerListener;
 import me.tassu.queue.queue.QueueManager;
 import me.tassu.queue.queue.QueueTicker;
 import net.md_5.bungee.api.ProxyServer;
@@ -43,6 +44,7 @@ public final class QueuePlugin extends Plugin {
     @Inject private ProxyServer proxy;
     @Inject private QueueTicker ticker;
     @Inject private QueueCommand command;
+    @Inject private PlayerListener listener;
     @Inject private MessagingChannelReader api;
 
     private static Injector injector;
@@ -55,6 +57,7 @@ public final class QueuePlugin extends Plugin {
 
         queueManager.refreshQueues();
 
+        proxy.getPluginManager().registerListener(this, listener);
         proxy.getPluginManager().registerListener(this, api);
         proxy.getPluginManager().registerCommand(this, command);
         proxy.getScheduler().schedule(this, ticker, 1, 1, TimeUnit.SECONDS);

@@ -36,7 +36,6 @@ import me.tassu.queue.queue.QueueManager;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
@@ -119,11 +118,6 @@ public class MessagingChannelReader implements Listener {
 
             info.sendData("BungeeCord", out.toByteArray());
         }
-    }
-
-    @EventHandler
-    public void onLeave(PlayerDisconnectEvent event) {
-        queueManager.getQueueForPlayer(event.getPlayer()).ifPresent(q -> q.removePlayer(event.getPlayer()));
     }
 
 }
