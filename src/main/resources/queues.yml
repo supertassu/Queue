@@ -31,6 +31,6 @@ survival:
   statusMessageDelay: 20 # delay in seconds between sending the status message to a player
   sendPositionUpdates: false # send the status message when the position changes
   requiredProtocol: # fully optional
-    # min: x
+    min: 404 # 404 == 1.13.2
     # max: x
-    exact: 401 # 393 == 1.13
+    # exact: x
